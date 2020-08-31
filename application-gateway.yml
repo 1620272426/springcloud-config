@@ -1,0 +1,45 @@
+server:
+  port: 9527
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态的 创建路由的功能， 利用微服务名进行路由
+      routes:
+      - id: payment_routh #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+#        uri: http://localhost:8001          #匹配后提供服务的路由地址
+        uri: lb://CLOUD-PAYMENT-SERVICE #匹配后提供服务的路由 地址
+        predicates:
+          - Path=/payment/get/**         # 断言，路径相匹配的进行路由
+
+
+      - id: payment_routh2 #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+        uri: lb://CLOUD-PAYMENT-SERVICE #匹配后提供服务的路由 地址
+        filters:
+              - AddRequestParameter=X-Request-Id,1024 #过滤器 工厂  会在匹配的请求头加上一对 请求头： 名称为X-Request-Id 值为1024
+        predicates:
+          - Path=/payment/lb/**         # 断言，路径相匹配的进行路由
+#          - After=2020-08-31T14:46:22.462+08:00[Asia/Shanghai] #时间判断  要在对应的时间之后才能访问 否则报错
+#          - Cookie=username,zzyy #表示要带 Cookie 且键位username 值为 zzyy  --cookie=“username = zzyy”
+#          - Header=X-Request-Id, \d+ # 表示请求头 要带有 X-Request-Id属性 并且值要为 正整数 的正则表达式
+
+
+
+
+
+
+#eureka服务端的实例名称
+eureka:
+  instance:
+    hostname: cloud-gateway-service
+  #    服务提供者注册进服务中心
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      #设置与 Eureka Server交互的地址查询服务 和注册服务都需要依赖这个地址
+      defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka
+
